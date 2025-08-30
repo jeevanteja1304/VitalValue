@@ -4,7 +4,7 @@ const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const errorMessage = document.getElementById('error-message');
 
-const LOGIN_URL = 'http://127.0.0.1:5000/login';
+const LOGIN_URL = 'https://vitallens-11.onrender.com/login';
 
 // --- Event Listener for Form Submission ---
 loginForm.addEventListener('submit', async (event) => {
