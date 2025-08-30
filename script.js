@@ -133,17 +133,17 @@ function displayResults(results) {
         {
             title: 'Heart Rate',
             value: `${results.heartRate} bpm`,
-            icon: '<i class="fa-solid fa-heart-pulse"></i>',
+            icon: '<i class=\"fa-solid fa-heart-pulse\"></i>',
         },
         {
             title: 'Blood Pressure',
             value: `${results.systolic}/${results.diastolic} mmHg`,
-            icon: '<i class="fa-solid fa-droplet"></i>',
+            icon: '<i class=\"fa-solid fa-droplet\"></i>',
         },
         {
             title: 'Stress Level',
             value: results.stress,
-            icon: '<i class="fa-solid fa-brain"></i>',
+            icon: '<i class=\"fa-solid fa-brain\"></i>',
         }
     ];
 
