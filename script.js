@@ -133,17 +133,17 @@ function displayResults(results) {
         {
             title: 'Heart Rate',
             value: `${results.heartRate} bpm`,
-            icon: '<i class="fa-solid fa-heart-pulse"></i>',
+            icon: '<i class=\"fa-solid fa-heart-pulse\"></i>',
         },
         {
             title: 'Blood Pressure',
             value: `${results.systolic}/${results.diastolic} mmHg`,
-            icon: '<i class="fa-solid fa-droplet"></i>',
+            icon: '<i class=\"fa-solid fa-droplet\"></i>',
         },
         {
             title: 'Stress Level',
             value: results.stress,
-            icon: '<i class="fa-solid fa-brain"></i>',
+            icon: '<i class=\"fa-solid fa-brain\"></i>',
         }
     ];
 
@@ -163,44 +163,3 @@ window.onload = () => {
     statusText.textContent = "Loading models, please wait...";
 
     // --- Event Listeners ---\n    startMonitoringBtn.addEventListener('click', startMonitoring);\n    video.addEventListener('play', detectFace);\n    \n    // Start the process by loading the face detection models\n    loadFaceApiModels();\n};\n\n```
-***
-
-### `login.js`
-
-```javascript
-// --- DOM Element References ---
-const loginForm = document.getElementById('login-form');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const errorMessage = document.getElementById('error-message');
-
-const LOGIN_URL = 'https://vitallens-11.onrender.com/login';
-
-// --- Event Listener for Form Submission ---
-loginForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    errorMessage.textContent = '';
-
-    const email = emailInput.value;
-    const password = passwordInput.value;
-
-    try {
-        const response = await fetch(LOGIN_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.status === 'success') {
-            console.log('Login successful, redirecting...');
-            window.location.href = 'index.html';
-        } else {
-            errorMessage.textContent = data.message || 'Login failed.';
-        }
-    } catch (error) {
-        console.error('Login request failed:', error);
-        errorMessage.textContent = 'Could not connect to the server.';
-    }
-});
