@@ -133,17 +133,17 @@ function displayResults(results) {
         {
             title: 'Heart Rate',
             value: `${results.heartRate} bpm`,
-            icon: '<i class=\"fa-solid fa-heart-pulse\"></i>',
+            icon: '<i class="fa-solid fa-heart-pulse"></i>',
         },
         {
             title: 'Blood Pressure',
             value: `${results.systolic}/${results.diastolic} mmHg`,
-            icon: '<i class=\"fa-solid fa-droplet\"></i>',
+            icon: '<i class="fa-solid fa-droplet"></i>',
         },
         {
             title: 'Stress Level',
             value: results.stress,
-            icon: '<i class=\"fa-solid fa-brain\"></i>',
+            icon: '<i class="fa-solid fa-brain"></i>',
         }
     ];
 
@@ -162,4 +162,10 @@ window.onload = () => {
     startMonitoringBtn.disabled = true;
     statusText.textContent = "Loading models, please wait...";
 
-    // --- Event Listeners ---\n    startMonitoringBtn.addEventListener('click', startMonitoring);\n    video.addEventListener('play', detectFace);\n    \n    // Start the process by loading the face detection models\n    loadFaceApiModels();\n};\n\n```
+    // --- Event Listeners ---
+    startMonitoringBtn.addEventListener('click', startMonitoring);
+    video.addEventListener('play', detectFace);
+    
+    // Start the process by loading the face detection models
+    loadFaceApiModels();
+};
