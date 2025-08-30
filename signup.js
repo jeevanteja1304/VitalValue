@@ -7,7 +7,7 @@ const genderInput = document.getElementById('gender');
 const passwordInput = document.getElementById('password');
 const errorMessage = document.getElementById('error-message');
 
-const SIGNUP_URL = 'http://127.0.0.1:5000/signup';
+const SIGNUP_URL = 'https://vitallens-11.onrender.com/signup';
 
 // --- Event Listener for Form Submission ---
 signupForm.addEventListener('submit', async (event) => {
