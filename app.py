@@ -6,10 +6,11 @@ import os
 import joblib
 import numpy as np
 import pandas as pd
+from scipy.signal import butter, filtfilt, find_peaks
 
 # --- App & DB Setup ---
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-app = Flask(__name__, static_folder=SCRIPT_DIR, static_url_path='')
+app = Flask(__name__, static_folder=SCRIPT_DIR, static_url_path='', template_folder=SCRIPT_DIR)
 CORS(app)
 
 CSV_FILE = os.path.join(SCRIPT_DIR, 'users.csv')
@@ -40,18 +41,22 @@ try:
     print("--- All ML models loaded successfully ---")
 except FileNotFoundError as e:
     print(f"Error loading models: {e}.")
-    print("Please ensure your .pkl files are inside a 'models' folder in your GitHub repository.")
-    print("Files found in root directory:", os.listdir(SCRIPT_DIR))
-    if os.path.exists(MODELS_DIR):
-        print("Files found in 'models' directory:", os.listdir(MODELS_DIR))
 except Exception as e:
     print(f"An unexpected error occurred while loading models: {e}")
 
+# --- Signal Processing Functions (Copied from ml_processor.py) ---
+def bandpass_filter(data, lowcut, highcut, fs, order=3):
+    nyquist = 0.5 * fs
+    low = lowcut / nyquist
+    high = highcut / nyquist
+    b, a = butter(order, [low, high], btype='band')
+    y = filtfilt(b, a, data)
+    return y
 
 # --- Static File Serving ---
 @app.route('/')
-def redirect_to_login():
-    return redirect('/login.html')
+def redirect_to_home():
+    return redirect('/home.html')
 
 @app.route('/login.html')
 def serve_login():
@@ -65,7 +70,6 @@ def serve_signup():
 def serve_index():
     return send_from_directory(SCRIPT_DIR, 'index.html')
 
-
 # --- User Authentication Endpoints ---
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -78,7 +82,6 @@ def signup():
         writer.writerow(data)
 
     return jsonify({'status': 'success', 'message': 'User registered successfully'})
-
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -94,27 +97,46 @@ def login():
 
     return jsonify({'status': 'error', 'message': 'Invalid email or password'}), 401
 
-
 # --- ML Prediction Endpoint ---
 @app.route('/process', methods=['POST'])
 def process_data():
     if not all([bp_model, hr_model, stress_model]):
         return jsonify({'status': 'error', 'message': 'Models are not loaded on the server.'}), 500
 
-    simulated_calculated_hr = random.uniform(60.0, 100.0)
-    input_df = pd.DataFrame([[simulated_calculated_hr]], columns=['calculated_hr'])
+    data = request.json
+    raw_signal = data.get('raw_signal')
+    
+    if raw_signal is None or not raw_signal:
+        return jsonify({'status': 'error', 'message': 'No raw signal data provided.'}), 400
+    
+    fs = 30 # Assuming ~30 FPS
+    try:
+        raw_signal_np = np.array(raw_signal)
+        filtered_signal = bandpass_filter(raw_signal_np, 0.75, 4.0, fs)
+        
+        min_distance = int(0.5 * fs)
+        peaks, _ = find_peaks(filtered_signal, distance=min_distance)
+        
+        if len(peaks) < 2:
+            calculated_hr = random.uniform(60, 100)
+        else:
+            peak_intervals = np.diff(peaks) / fs
+            avg_interval = np.mean(peak_intervals)
+            calculated_hr = 60.0 / avg_interval
+            
+    except Exception as e:
+        print(f"Error processing signal: {e}")
+        calculated_hr = random.uniform(60, 100)
+
+    input_df = pd.DataFrame([[calculated_hr]], columns=['calculated_hr'])
 
     bp_pred = bp_model.predict(input_df)
     if bp_pred.ndim == 1:
         bp_pred = bp_pred.reshape(1, -1)
 
-    # hr_pred is a NumPy array like [85.3]
     hr_pred = hr_model.predict(input_df)
-
-    # stress_pred is a NumPy array like ['Moderate']
     stress_pred = stress_model.predict(input_df)
 
-    # UPDATED: Convert the NumPy number to a standard Python float before rounding.
     results = {
         'status': 'success',
         'systolic': round(bp_pred[0, 0]),
